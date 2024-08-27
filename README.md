@@ -82,3 +82,126 @@ curl --location 'http://localhost:8083/connectors' \
 ```
 curl localhost:9200/file-topic/_search  | python -m json.tool
 ```
+
+
+
+
+
+
+**We can put Schema also for this index** 
+
+<details>
+  <summary>Json Schema (Click to expand)  </summary>
+
+```
+curl --location --request PUT 'http://localhost:9200/file-topic' \
+--header 'Content-Type: application/json' \
+--data '{
+  "mappings": {
+    "properties": {
+      "before": {
+        "type": "object",
+        "enabled": false
+      },
+      "after": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "value": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "integer"
+              },
+              "object": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "keyword"
+                  },
+                  "type": {
+                    "type": "text",
+                    "fields": {
+                      "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                      }
+                    }
+                  },
+                  "version": {
+                    "type": "text",
+                    "fields": {
+                      "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                      }
+                    }
+                  },
+                  "hostname": {
+                    "type": "text",
+                    "fields": {
+                      "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                      }
+                    }
+                  },
+                  "last_ping": {
+                    "type": "long"
+                  },
+                  "created_at": {
+                    "type": "long"
+                  },
+                  "updated_at": {
+                    "type": "long"
+                  },
+                  "config_hash": {
+                    "type": "text",
+                    "fields": {
+                      "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                      }
+                    }
+                  },
+                  "process_conf": {
+                    "type": "object",
+                    "enabled": false
+                  },
+                  "connection_state": {
+                    "type": "object",
+                    "properties": {
+                      "is_connected": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "data_plane_cert_id": {
+                    "type": "keyword"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "op": {
+        "type": "keyword"
+      },
+      "ts_ms": {
+        "type": "long"
+      }
+    }
+  }
+}'
+
+```
+</details>
