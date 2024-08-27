@@ -53,18 +53,20 @@ services:
     volumes:
       - ./plugins:/etc/kafka-connect/jars
       - ./data:/data
-  opensearch-node:
-    image: opensearchproject/opensearch:latest
-    container_name: opensearch-node
-    environment:
-      - cluster.name=opensearch-cluster
-      - node.name=opensearch-node
-      - discovery.seed_hosts=opensearch-node
-      - cluster.initial_cluster_manager_nodes=opensearch-node
-      - bootstrap.memory_lock=true # Disable JVM heap memory swapping
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "DISABLE_INSTALL_DEMO_CONFIG=true"
-      - "DISABLE_SECURITY_PLUGIN=true"
+
+  elasticsearch:
+    container_name: es01
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.3
+    # 8.x
+    environment: [ 'ES_JAVA_OPTS=-Xms2g -Xmx2g','bootstrap.memory_lock=true','discovery.type=single-node','xpack.security.enabled=false', 'xpack.security.enrollment.enabled=false' ]
+
+    # 7.17.X
+    # environment: ['ES_JAVA_OPTS=-Xms2g -Xmx2g','bootstrap.memory_lock=true','discovery.type=single-node']
+
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
     ulimits:
       memlock:
         soft: -1
@@ -72,22 +74,20 @@ services:
       nofile:
         soft: 65536
         hard: 65536
-    volumes:
-      - opensearch-data:/usr/share/opensearch/data
-    ports:
-      - "9200:9200" # REST API
-      - "9600:9600" # Performance Analyzer
 
-  opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:latest
-    container_name: opensearch-dashboards
-    ports:
-      - "5601:5601"
-    expose:
-      - "5601"
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.4.0
+    container_name: kib01
     environment:
-      - 'OPENSEARCH_HOSTS=["http://opensearch-node:9200"]'
-      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
+      XPACK_APM_SERVICEMAPENABLED: "true"
+      XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: d1a66dfd-c4d3-4a0a-8290-2abcb83ab3aa
+      LOGGING_ROOT_LEVEL: error
 
-volumes:
-  opensearch-data:
+
+    ports:
+      - 5601:5601
+    networks:
+      - elastic
+
+networks:
+  elastic:

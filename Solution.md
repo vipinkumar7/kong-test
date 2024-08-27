@@ -47,4 +47,36 @@ cat test.jsonl >> stream.jsonl
 
 ```
 
-#### **Pushing Data from Kafka topic to Openobserve**
+#### **Pushing Data from Kafka topic to Elastic Search**
+
+Use following connector for Kafka connect elastic sync 
+https://d2p6pa21dvn84.cloudfront.net/api/plugins/confluentinc/kafka-connect-elasticsearch/versions/14.1.1/confluentinc-kafka-connect-elasticsearch-14.1.1.zip
+
+
+#### Create  one more connector for Elastic Sync :
+
+```
+curl --location 'http://localhost:8083/connectors' \
+--header 'Content-Type: application/json' \
+--data '{
+    "name": "elasticsearch-sink",
+    "config": {
+      "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+       "tasks.max": "1",
+       "connection.url":"http://host.docker.internal:9200",
+       "type.name":"kafka-connect",
+       "key.ignore":"true",
+       "schema.ignore": "true",
+       "topics": "file-topic",
+       "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+       "value.converter.schemas.enable": "false",
+       "name": "elasticsearch-sink"
+    }
+  }'
+```
+
+**We can now list the data in file-topic index** 
+
+```
+curl localhost:9200/file-topic/_search  | python -m json.tool
+```
