@@ -11,6 +11,9 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author  Vipin Kumar
+ */
 public class FileToKafkaPipe extends AbstractVerticle {
 
     private static final String FILE_PATH = "stream.jsonl";
